@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Airport City Pro Calc</title>
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --card: #1c222d;
+            --accent: #f1c40f;
+            --text: #ffffff;
+            --text-dim: #a0aec0;
+            --border: #2d3748;
+            --input-bg: #000000;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --font-main: 18px;
+            --font-h1: 24px;
+            --btn-size: 46px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            font-size: var(--font-main);
+            padding-bottom: 180px;
+        }
+
+        header {
+            background: #1a202c;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 { margin: 0; font-size: var(--font-h1); text-transform: uppercase; letter-spacing: 2px; color: var(--accent); }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 15px; }
+
+        .config-panel {
+            background: var(--card);
+            border: 2px dashed var(--accent);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .config-row { display: flex; align-items: flex-end; gap: 15px; flex-wrap: wrap; }
+        .config-group { flex: 1; min-width: 250px; }
+
+        .config-panel label { display: block; margin-bottom: 10px; font-weight: bold; color: var(--accent); font-size: 14px; text-transform: uppercase; }
+        
+        #income-input {
+            width: 100%;
+            font-size: 24px;
+            padding: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .btn-reset {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.2s;
+            height: 52px;
+        }
+        .btn-reset:active { opacity: 0.7; }
+
+        .factory-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin: 35px 0 15px 5px;
+            border-left: 5px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 15px;
+        }
+
+        .item-card {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .item-info { display: flex; align-items: center; gap: 15px; }
+        
+        .icon-box {
+            width: 64px;
+            height: 64px;
+            background: #000;
+            border: 2px solid #444;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .details { display: flex; flex-direction: column; gap: 6px; }
+        .name { font-size: 19px; font-weight: bold; line-height: 1.2; }
+        
+        .total-badge { 
+            font-size: 15px; 
+            color: #000; 
+            background: var(--accent); 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-weight: 900;
+            width: fit-content;
+        }
+        .hidden { display: none !important; }
+
+        .controls { display: flex; align-items: center; gap: 12px; }
+        
+        .btn-logic {
+            width: var(--btn-size);
+            height: var(--btn-size);
+            border: none;
+            background: #4a5568;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 26px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-logic:active { background: var(--accent); color: #000; }
+
+        .qty-input {
+            width: 70px;
+            height: var(--btn-size);
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .footer-results {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1a202c;
+            border-top: 4px solid var(--accent);
+            padding: 20px 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            z-index: 1000;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        }
+
+        .stat-card {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+        }
+        .stat-card:last-child { border-right: none; }
+
+        .stat-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; font-weight: bold; }
+        .stat-value { font-size: 20px; font-weight: 900; }
+        
+        .profit-green { color: var(--success); }
+        .profit-red { color: var(--danger); }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .btn-reset { width: 100%; }
+            .stat-value { font-size: 17px; }
+            .footer-results { padding: 15px 5px 25px 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<header><h1> Airport City Pro Calc</h1></header>
+
+<div class="container">
+    <div class="config-panel">
+        <div class="config-row">
+            <div class="config-group">
+                <label for="income-input">Прогноз выручки за рейс 💰</label>
+                <input type="number" id="income-input" placeholder="0" oninput="recalculate()">
+            </div>
+            <button class="btn-reset" onclick="resetAll()">Сбросить всё</button>
+        </div>
+    </div>
+
+    <div class="factory-title">Высокотехнологичный завод</div>
+    <div class="grid" id="tier3-container"></div>
+
+    <div class="factory-title">Механический завод</div>
+    <div class="grid" id="tier2-container"></div>
+
+    <div class="factory-title">База ресурсов</div>
+    <div class="grid" id="tier1-container"></div>
+</div>
+
+<div class="footer-results">
+    <div class="stat-card">
+        <span class="stat-label">Затраты</span>
+        <span class="stat-value" id="res-cost">0</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Прибыль</span>
+        <span class="stat-value" id="res-net">0</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Время</span>
+        <span class="stat-value" id="res-time">00:00</span>
+    </div>
+</div>
+
+<script>
+    const DB = {
+        micro: { name: "Микросхема", time: 60, cost: 10, tier: 1, icon: "💾" },
+        gear: { name: "Шестерня", time: 90, cost: 15, tier: 1, icon: "⚙️" },
+        varnish: { name: "Лак", time: 120, cost: 20, tier: 1, icon: "🧴" },
+        sensor: { name: "Датчик", time: 160, cost: 27, tier: 1, icon: "📡" },
+        valve: { name: "Клапан", time: 360, tier: 2, icon: "🚰", recipe: { micro: 1, gear: 1 } },
+        cone: { name: "Сигнальная пирамида", time: 480, tier: 2, icon: "⚠️", recipe: { varnish: 1, micro: 1 } },
+        bearing: { name: "Шаровая опора", time: 480, tier: 2, icon: "🔘", recipe: { varnish: 1, gear: 1 } },
+        parachute: { name: "Запасной парашют", time: 640, tier: 2, icon: "🪂", recipe: { sensor: 1, micro: 1 } },
+        drive: { name: "Привод", time: 640, tier: 2, icon: "⛓️", recipe: { gear: 1, sensor: 1 } },
+        rotor: { name: "Рулевой винт", time: 640, tier: 2, icon: "🚁", recipe: { varnish: 1, sensor: 1 } },
+        radio: { name: "Радиостанция", time: 840, tier: 3, icon: "📻", recipe: { micro: 3, varnish: 2 } },
+        light: { name: "Наземные огни", time: 840, tier: 3, icon: "💡", recipe: { cone: 1, sensor: 3, micro: 2 } },
+        skid: { name: "Полозковое шасси", time: 1080, tier: 3, icon: "🎿", recipe: { bearing: 2, varnish: 2, gear: 2 } },
+        wind: { name: "Ветроуказатель", time: 1080, tier: 3, icon: "🚩", recipe: { sensor: 3, parachute: 2 } },
+        swash: { name: "Автомат перекоса", time: 1360, tier: 3, icon: "🎡", recipe: { valve: 1, bearing: 3, drive: 1 } },
+        shield: { name: "Маркерный щит", time: 1360, tier: 3, icon: "🛡️", recipe: { cone: 4, bearing: 1, drive: 1 } }
+    };
+
+    let userWants = {};
+
+    function init() {
+        for (let key in DB) {
+            userWants[key] = 0;
+            const it = DB[key];
+            const div = document.createElement('div');
+            div.className = 'item-card';
+            const badgeClass = it.tier === 3 ? 'total-badge hidden' : 'total-badge';
+
+            div.innerHTML = `
+                <div class="item-info">
+                    <div class="icon-box">${it.icon}</div>
+                    <div class="details">
+                        <span class="name">${it.name}</span>
+                        <span class="${badgeClass}" id="total-${key}">0 шт.</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn-logic" onclick="changeQty('${key}', -1)">-</button>
+                    <input type="number" class="qty-input" id="in-${key}" value="0" min="0" oninput="manualInput('${key}')">
+                    <button class="btn-logic" onclick="changeQty('${key}', 1)">+</button>
+                </div>
+            `;
+            document.getElementById(`tier${it.tier}-container`).appendChild(div);
+        }
+        recalculate();
+    }
+
+    function resetAll() {
+        document.getElementById('income-input').value = "";
+        for (let key in DB) {
+            userWants[key] = 0;
+            document.getElementById(`in-${key}`).value = 0;
+        }
+        recalculate();
+    }
+
+    function changeQty(key, d) {
+        userWants[key] = Math.max(0, userWants[key] + d);
+        document.getElementById(`in-${key}`).value = userWants[key];
+        recalculate();
+    }
+
+    function manualInput(key) {
+        userWants[key] = Math.max(0, parseInt(document.getElementById(`in-${key}`).value) || 0);
+        recalculate();
+    }
+
+    function recalculate() {
+        const finalNeeded = {};
+        for (let key in DB) finalNeeded[key] = 0;
+
+        for (let key in DB) {
+            if (DB[key].tier === 3) resolve(key, userWants[key], finalNeeded);
+        }
+        for (let key in DB) {
+            if (DB[key].tier === 2) {
+                finalNeeded[key] += userWants[key];
+                resolve(key, userWants[key], finalNeeded);
+            }
+        }
+        for (let key in DB) {
+            if (DB[key].tier === 1) finalNeeded[key] += userWants[key];
+        }
+
+        render(finalNeeded);
+    }
+
+    function resolve(key, qty, bucket) {
+        if (qty <= 0) return;
+        const recipe = DB[key].recipe;
+        if (recipe) {
+            for (let subKey in recipe) {
+                const amount = recipe[subKey] * qty;
+                bucket[subKey] += amount;
+                if (DB[subKey].tier === 2 && DB[subKey].recipe) {
+                    for (let deepKey in DB[subKey].recipe) {
+                        bucket[deepKey] += DB[subKey].recipe[deepKey] * amount;
+                    }
+                }
+            }
+        }
+    }
+
+    function render(totals) {
+        let cost = 0, seconds = 0;
+        for (let key in DB) {
+            const qty = totals[key];
+            const badge = document.getElementById(`total-${key}`);
+            if (badge) badge.innerText = `${qty} шт.`;
+            seconds += DB[key].time * qty;
+            if (DB[key].tier === 1) cost += DB[key].cost * qty;
+        }
+
+        const income = parseInt(document.getElementById('income-input').value) || 0;
+        const net = income - cost;
+
+        document.getElementById('res-cost').innerText = cost.toLocaleString();
+        document.getElementById('res-time').innerText = formatTime(seconds);
+        
+        const netEl = document.getElementById('res-net');
+        netEl.innerText = net.toLocaleString();
+        netEl.className = 'stat-value ' + (net >= 0 ? 'profit-green' : 'profit-red');
+    }
+
+    function formatTime(s) {
+        const h = Math.floor(s / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        if (h > 0) return `${h}ч ${m}м`;
+        return `${m}м ${s % 60}с`;
+    }
+
+    init();
+</script>
+</body>
+</html>
